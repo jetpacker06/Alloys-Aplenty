@@ -7,6 +7,8 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import static com.jetpacker06.AlloysAplenty.ModItems.registerAllItems;
+
 @Mod("alloysaplenty")
 public class AlloysAplenty {
     public static final String MOD_ID = "alloysaplenty";
@@ -14,6 +16,7 @@ public class AlloysAplenty {
 
     public AlloysAplenty() {
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        registerAllItems();
         ModItems.register(eventBus);
         MinecraftForge.EVENT_BUS.register(this);
     }
