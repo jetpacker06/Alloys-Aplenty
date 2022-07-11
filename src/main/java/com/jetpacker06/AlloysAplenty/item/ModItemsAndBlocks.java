@@ -12,9 +12,54 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
+import java.util.*;
 import java.util.function.Supplier;
 
+import static com.jetpacker06.AlloysAplenty.AlloysAplenty.printAllKeysAndValuesSD;
+
 public class ModItemsAndBlocks {
+    public static int registeredItems = 0;
+    public static int registeredBlocks = 0;
+    public static HashMap<String, Double> NewMetalsAndColors = new HashMap<>();
+    public static HashMap<String, Double> ExistingMetalsAndColors = new HashMap<>();
+    public static void initMetalsAndColors() {
+        NewMetalsAndColors.put("silver", 1d);
+        NewMetalsAndColors.put("nickel", 1d);
+        NewMetalsAndColors.put("lead", 1d);
+        NewMetalsAndColors.put("tin", 1d);
+        NewMetalsAndColors.put("aluminum", 1d);
+        NewMetalsAndColors.put("platinum", 1d);
+        NewMetalsAndColors.put("magnesium", 1d);
+        NewMetalsAndColors.put("boron", 1d);
+        NewMetalsAndColors.put("lithium", 1d);
+        NewMetalsAndColors.put("titanium", 1d);
+        NewMetalsAndColors.put("cobalt", 1d);
+        NewMetalsAndColors.put("chrome", 1d);
+        NewMetalsAndColors.put("iridium", 1d);
+        NewMetalsAndColors.put("osmium", 1d);
+        NewMetalsAndColors.put("uranium", 1d);
+        NewMetalsAndColors.put("thorium", 1d);
+        NewMetalsAndColors.put("electrum", 1d);
+        NewMetalsAndColors.put("brass", 1d);
+        NewMetalsAndColors.put("bronze", 1d);
+        NewMetalsAndColors.put("steel", 1d);
+        NewMetalsAndColors.put("constantan", 1d);
+        NewMetalsAndColors.put("invar", 1d);
+        NewMetalsAndColors.put("terne", 1d);
+        NewMetalsAndColors.put("corinthian_bronze", 1d);
+        NewMetalsAndColors.put("sterling_silver", 1d);
+        NewMetalsAndColors.put("titanium_gold", 1d);
+        NewMetalsAndColors.put("sterling_platinum", 1d);
+        NewMetalsAndColors.put("mag_thor", 1d);
+        NewMetalsAndColors.put("beskar", 1d);
+    }
+    public static void initExistingMetalsAndColors() {
+        ExistingMetalsAndColors.put("iron", 1d);
+        ExistingMetalsAndColors.put("gold", 1d);
+        ExistingMetalsAndColors.put("copper", 1d);
+    }
+    public static HashMap<RegistryObject<Item>, Integer> ItemColorMap = new HashMap<>();
+    public static HashMap<RegistryObject<Block>, Integer> BlockColorMap = new HashMap<>();
     //default item properties
     public static final Item.Properties iProp = new Item.Properties().tab(ItemGroups.ALLOYS_APLENTY_TAB);
     //default block properties
@@ -22,22 +67,44 @@ public class ModItemsAndBlocks {
     //DRs
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, AlloysAplenty.MOD_ID);
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, AlloysAplenty.MOD_ID);
-    public static void registerItem() {
-
+    public static void log(Object o) {
+        AlloysAplenty.LOGGER.info(o);
     }
-    //Main method
-    public static void registerALl() {
-        int registered = 0;
-        ITEMS.register("copper_nugget", () -> new Item(iProp));
-        String[] newMetalsList = {
-                //metals
-                "silver", "nickel", "lead", "tin", "aluminum", "platinum", "magnesium", "boron", "lithium", "titanium", "cobalt", "chrome", "iridium", "osmium", "uranium", "thorium",
-                //alloys
-                "electrum", "brass", "bronze", "steel", "constantan", "invar", "terne", "corinthian_bronze", "sterling_silver", "titanium_gold", "sterling_platinum", "mag_thor", "beskar"
-        };
-        String[] existingMetalsList = {
-                "iron", "gold", "copper"
-        };
+    public static RegistryObject<Item> ingredient(String name, Item.Properties pProperties) {
+        log(name);
+        RegistryObject<Item> item = ITEMS.register(name, () -> new Item(pProperties));
+        String[] splitName = name.split("1");
+        String metalName = splitName[0];
+        //log(metalName);
+        try {
+            double d = ExistingMetalsAndColors.get(metalName);
+            ItemColorMap.put(item, (int)d);
+        } catch (NullPointerException e) {
+            double d = NewMetalsAndColors.get(metalName);
+            ItemColorMap.put(item, (int)d);
+        }
+        registeredItems++;
+        return item;
+    }
+    public static void sequenceOfEvents(IEventBus eventBus) {
+        log("Initializing maps");
+        initMetalsAndColors();
+        initExistingMetalsAndColors();
+        log("Registering items");
+        registerAll();
+        log("Registered "+ registeredItems + " items and "+ registeredBlocks + " blocks.");
+        ITEMS.register(eventBus);
+        BLOCKS.register(eventBus);
+       // AlloysAplenty.printAllKeysAndValuesSD(NewMetalsAndColors);
+       // AlloysAplenty.printAllKeysAndValuesSD(ExistingMetalsAndColors);
+       // AlloysAplenty.printAllKeysAndValues(ItemColorMap);
+       // AlloysAplenty.printAllKeysAndValuesB(BlockColorMap);
+    }
+    public static void registerAll() {
+        ingredient("copper1nugget", iProp);
+        String[] newMetalsList = NewMetalsAndColors.keySet().toArray(new String[0]);
+        String[] existingMetalsList = ExistingMetalsAndColors.keySet().toArray(new String[0]);
+
         String[] newItemsList = {
                 "sheet",
                 "gear",
@@ -55,36 +122,43 @@ public class ModItemsAndBlocks {
         };
         for (String metal : newMetalsList) {
             for (String item : newItemsList) {
-                ITEMS.register(metal + "_" + item, () -> new Item(iProp));
+                ingredient(metal + "1" + item, iProp);
             }
             for (String item : existingItemsList) {
-                ITEMS.register(metal + "_" + item, () -> new Item(iProp));
+                ingredient(metal + "1" + item, iProp);
             }
             for (String block : newBlocksList) {
-                registerBlock(metal + "_" + block, () -> new Block(bProp), ItemGroups.ALLOYS_APLENTY_TAB);
+                registerBlock(metal + "1" + block, () -> new Block(bProp), ItemGroups.ALLOYS_APLENTY_TAB);
             }
-            registerBlock(metal + "_block", () -> new Block(bProp), ItemGroups.ALLOYS_APLENTY_TAB);
+            registerBlock(metal + "1block", () -> new Block(bProp), ItemGroups.ALLOYS_APLENTY_TAB);
         }
         for (String metal : existingMetalsList) {
             for (String item : newItemsList) {
-                ITEMS.register(metal + "_" + item, () -> new Item(iProp));
+                ingredient(metal + "1" + item, iProp);
             }
             for (String block : newBlocksList) {
-                registerBlock(metal + "_" + block, () -> new Block(bProp), ItemGroups.ALLOYS_APLENTY_TAB);
+                registerBlock(metal + "1" + block, () -> new Block(bProp), ItemGroups.ALLOYS_APLENTY_TAB);
             }
         }
     }
-
-    public static void register(IEventBus eventBus) {
-        ITEMS.register(eventBus);
-        BLOCKS.register(eventBus);
-    }
-    private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block, CreativeModeTab tab) {
-        RegistryObject<T> toReturn = BLOCKS.register(name, block);
+    private static  RegistryObject<Block> registerBlock(String name, Supplier<Block> block, CreativeModeTab tab) {
+        log(name);
+        String metalName = name.split("1")[0];
+        RegistryObject<Block> toReturn = BLOCKS.register(name, block);
+        try {
+            double d = ExistingMetalsAndColors.get(metalName);
+            BlockColorMap.put(toReturn, (int)d);
+        } catch (NullPointerException e) {
+            double d = NewMetalsAndColors.get(metalName);
+            BlockColorMap.put(toReturn, (int)d);
+        }
         registerBlockItem(name, toReturn, tab);
+        registeredBlocks++;
         return toReturn;
     }
     private static <T extends Block> RegistryObject<Item> registerBlockItem(String name, RegistryObject<T> block, CreativeModeTab tab) {
-        return ITEMS.register(name, () -> new BlockItem(block.get(), new Item.Properties().tab(tab)));
+        registeredItems++;
+        RegistryObject<Item> blockitem = ITEMS.register(name, () -> new BlockItem(block.get(), new Item.Properties().tab(tab)));
+        return blockitem;
     }
 }
