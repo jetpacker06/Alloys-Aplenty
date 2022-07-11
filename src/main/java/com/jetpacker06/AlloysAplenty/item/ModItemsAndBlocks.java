@@ -12,17 +12,18 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
-import java.util.*;
+import java.util.HashMap;
 import java.util.function.Supplier;
 
-import static com.jetpacker06.AlloysAplenty.AlloysAplenty.printAllKeysAndValuesSD;
-
 public class ModItemsAndBlocks {
-    public static int registeredItems = 0;
-    public static int registeredBlocks = 0;
+    //track how many items are registered
+    private static int registeredItems = 0;
+    private static int registeredBlocks = 0;
+    //maps that contain metal names and their corresponding color hex
     public static HashMap<String, Double> NewMetalsAndColors = new HashMap<>();
     public static HashMap<String, Double> ExistingMetalsAndColors = new HashMap<>();
-    public static void initMetalsAndColors() {
+    //methods to initialize the above maps
+    private static void initMetalsAndColors() {
         NewMetalsAndColors.put("silver", 1d);
         NewMetalsAndColors.put("nickel", 1d);
         NewMetalsAndColors.put("lead", 1d);
@@ -53,24 +54,26 @@ public class ModItemsAndBlocks {
         NewMetalsAndColors.put("mag_thor", 1d);
         NewMetalsAndColors.put("beskar", 1d);
     }
-    public static void initExistingMetalsAndColors() {
+    private static void initExistingMetalsAndColors() {
         ExistingMetalsAndColors.put("iron", 1d);
         ExistingMetalsAndColors.put("gold", 1d);
         ExistingMetalsAndColors.put("copper", 1d);
     }
+    //maps that are used for coloring
     public static HashMap<RegistryObject<Item>, Integer> ItemColorMap = new HashMap<>();
     public static HashMap<RegistryObject<Block>, Integer> BlockColorMap = new HashMap<>();
-    //default item properties
-    public static final Item.Properties iProp = new Item.Properties().tab(ItemGroups.ALLOYS_APLENTY_TAB);
-    //default block properties
-    public static final Block.Properties bProp = BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK);
-    //DRs
-    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, AlloysAplenty.MOD_ID);
-    public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, AlloysAplenty.MOD_ID);
-    public static void log(Object o) {
+    //default item and block properties
+    private static final Item.Properties iProp = new Item.Properties().tab(ItemGroups.ALLOYS_APLENTY_TAB);
+    private static final Block.Properties bProp = BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK);
+    //deferred registers
+    private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, AlloysAplenty.MOD_ID);
+    private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, AlloysAplenty.MOD_ID);
+    //logger
+    private static void log(Object o) {
         AlloysAplenty.LOGGER.info(o);
     }
-    public static RegistryObject<Item> ingredient(String name, Item.Properties pProperties) {
+    //item register method
+    private static RegistryObject<Item> ingredient(String name, Item.Properties pProperties) {
         log(name);
         RegistryObject<Item> item = ITEMS.register(name, () -> new Item(pProperties));
         String[] splitName = name.split("1");
@@ -86,7 +89,28 @@ public class ModItemsAndBlocks {
         registeredItems++;
         return item;
     }
-    public static void sequenceOfEvents(IEventBus eventBus) {
+    //block and blockitem register methods
+    private static  RegistryObject<Block> registerBlock(String name, Supplier<Block> block, CreativeModeTab tab) {
+        log(name);
+        String metalName = name.split("1")[0];
+        RegistryObject<Block> toReturn = BLOCKS.register(name, block);
+        try {
+            double d = ExistingMetalsAndColors.get(metalName);
+            BlockColorMap.put(toReturn, (int)d);
+        } catch (NullPointerException e) {
+            double d = NewMetalsAndColors.get(metalName);
+            BlockColorMap.put(toReturn, (int)d);
+        }
+        registerBlockItem(name, toReturn, tab);
+        registeredBlocks++;
+        return toReturn;
+    }
+    private static <T extends Block> RegistryObject<Item> registerBlockItem(String name, RegistryObject<T> block, CreativeModeTab tab) {
+        RegistryObject<Item> blockitem = ITEMS.register(name, () -> new BlockItem(block.get(), new Item.Properties().tab(tab)));
+        return blockitem;
+    }
+    //sequence of events
+    public static void BootUp(IEventBus eventBus) {
         log("Initializing maps");
         initMetalsAndColors();
         initExistingMetalsAndColors();
@@ -95,11 +119,8 @@ public class ModItemsAndBlocks {
         log("Registered "+ registeredItems + " items and "+ registeredBlocks + " blocks.");
         ITEMS.register(eventBus);
         BLOCKS.register(eventBus);
-       // AlloysAplenty.printAllKeysAndValuesSD(NewMetalsAndColors);
-       // AlloysAplenty.printAllKeysAndValuesSD(ExistingMetalsAndColors);
-       // AlloysAplenty.printAllKeysAndValues(ItemColorMap);
-       // AlloysAplenty.printAllKeysAndValuesB(BlockColorMap);
     }
+    //register method
     public static void registerAll() {
         ingredient("copper1nugget", iProp);
         String[] newMetalsList = NewMetalsAndColors.keySet().toArray(new String[0]);
@@ -141,24 +162,6 @@ public class ModItemsAndBlocks {
             }
         }
     }
-    private static  RegistryObject<Block> registerBlock(String name, Supplier<Block> block, CreativeModeTab tab) {
-        log(name);
-        String metalName = name.split("1")[0];
-        RegistryObject<Block> toReturn = BLOCKS.register(name, block);
-        try {
-            double d = ExistingMetalsAndColors.get(metalName);
-            BlockColorMap.put(toReturn, (int)d);
-        } catch (NullPointerException e) {
-            double d = NewMetalsAndColors.get(metalName);
-            BlockColorMap.put(toReturn, (int)d);
-        }
-        registerBlockItem(name, toReturn, tab);
-        registeredBlocks++;
-        return toReturn;
-    }
-    private static <T extends Block> RegistryObject<Item> registerBlockItem(String name, RegistryObject<T> block, CreativeModeTab tab) {
-        registeredItems++;
-        RegistryObject<Item> blockitem = ITEMS.register(name, () -> new BlockItem(block.get(), new Item.Properties().tab(tab)));
-        return blockitem;
-    }
+
+    public static final RegistryObject<Item> TEST_ITEM = ITEMS.register("test_item", () -> new Item(iProp));
 }

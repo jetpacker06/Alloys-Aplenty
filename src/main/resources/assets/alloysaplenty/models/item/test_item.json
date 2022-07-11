@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "alloysaplenty:item/wire"
+    "layer0": "alloysaplenty:item/test_item"
   }
 }
