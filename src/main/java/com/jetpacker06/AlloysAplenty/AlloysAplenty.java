@@ -44,23 +44,9 @@ public class AlloysAplenty {
     public void handleColorEvent(ColorHandlerEvent.Item event) {
         ItemColors c = event.getItemColors();
         log("It's color time!");
-        //color TEST_ITEM to blue
-        c.register((pStack, pTintIndex) -> 0x4634eb, ModItemsAndBlocks.TEST_ITEM.get());
-        log("Printing all keys and values of ItemColorMap");
-        for (RegistryObject<Item> item : ItemColorMap.keySet()) {
-            log(item.getId());
-            log(ItemColorMap.get(item));
-        }
 
         for (RegistryObject<Item> item : ItemColorMap.keySet()) {
             Integer x = ItemColorMap.get(item);
-            log("key:");
-            log(item.getId());
-            log("value:");
-            log(x);
-            //int y = Integer.parseInt(x);
-            //log("yyyy");
-            //log(y);
             c.register((pStack, pTintIndex) -> x, item.get());
         }
     }
