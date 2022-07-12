@@ -53,18 +53,18 @@ public class AlloysAplenty {
         }
 
         for (RegistryObject<Item> item : ItemColorMap.keySet()) {
-            String x = ItemColorMap.get(item);
+            Integer x = ItemColorMap.get(item);
             log("key:");
             log(item.getId());
             log("value:");
             log(x);
-            int y = Integer.parseInt(x);
-            log("yyyy");
-            log(y);
-            c.register((pStack, pTintIndex) -> y, item.get());
+            //int y = Integer.parseInt(x);
+            //log("yyyy");
+            //log(y);
+            c.register((pStack, pTintIndex) -> x, item.get());
         }
     }
-    public static void printAllKeysAndValues(HashMap<String, String> map) {
+    public static void printAllKeysAndValues(HashMap<String, Integer> map) {
         for (String o : map.keySet()) {
             log(o + ", " + map.get(o));
         }

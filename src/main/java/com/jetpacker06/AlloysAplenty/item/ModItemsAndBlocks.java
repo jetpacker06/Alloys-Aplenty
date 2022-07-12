@@ -21,48 +21,48 @@ public class ModItemsAndBlocks {
     public static int registeredItems = 0;
     public static int registeredBlocks = 0;
     //maps that contain metal names and their corresponding color hex
-    public static HashMap<String, String> NewMetalsAndColors = new HashMap<>();
-    public static HashMap<String, String> ExistingMetalsAndColors = new HashMap<>();
+    public static HashMap<String, Integer> NewMetalsAndColors = new HashMap<>();
+    public static HashMap<String, Integer> ExistingMetalsAndColors = new HashMap<>();
     //methods to initialize the above maps
     private static void initMetalsAndColors() {
-        NewMetalsAndColors.put("silver", "0xff002bd");
-        NewMetalsAndColors.put("nickel", "0xff002bd");
-        NewMetalsAndColors.put("lead", "0xff002bd");
-        NewMetalsAndColors.put("tin", "0xff002bd");
-        NewMetalsAndColors.put("aluminum", "0xff002bd");
-        NewMetalsAndColors.put("platinum", "0xff002bd");
-        NewMetalsAndColors.put("magnesium", "0xff002bd");
-        NewMetalsAndColors.put("boron", "0xff002bd");
-        NewMetalsAndColors.put("lithium", "0xff002bd");
-        NewMetalsAndColors.put("titanium", "0xff002bd");
-        NewMetalsAndColors.put("cobalt", "0xff002bd");
-        NewMetalsAndColors.put("chrome", "0xff002bd");
-        NewMetalsAndColors.put("iridium", "0xff002bd");
-        NewMetalsAndColors.put("osmium", "0xff002bd");
-        NewMetalsAndColors.put("uranium", "0xff002bd");
-        NewMetalsAndColors.put("thorium", "0xff002bd");
-        NewMetalsAndColors.put("electrum", "0xff002bd");
-        NewMetalsAndColors.put("brass", "0xff002bd");
-        NewMetalsAndColors.put("bronze", "0xff002bd");
-        NewMetalsAndColors.put("steel", "0xff002bd");
-        NewMetalsAndColors.put("constantan", "0xff002bd");
-        NewMetalsAndColors.put("invar", "0xff002bd");
-        NewMetalsAndColors.put("terne", "0xff002bd");
-        NewMetalsAndColors.put("corinthian_bronze", "0xff002bd");
-        NewMetalsAndColors.put("sterling_silver", "0xff002bd");
-        NewMetalsAndColors.put("titanium_gold", "0xff002bd");
-        NewMetalsAndColors.put("sterling_platinum", "0xff002bd");
-        NewMetalsAndColors.put("mag_thor", "0xff002bd");
-        NewMetalsAndColors.put("beskar", "0xff002bd");
+        NewMetalsAndColors.put("silver", 0xff002bd);
+        NewMetalsAndColors.put("nickel", 0xff002bd);
+        NewMetalsAndColors.put("lead", 0xff002bd);
+        NewMetalsAndColors.put("tin", 0xff002bd);
+        NewMetalsAndColors.put("aluminum", 0xff002bd);
+        NewMetalsAndColors.put("platinum", 0xff002bd);
+        NewMetalsAndColors.put("magnesium", 0xff002bd);
+        NewMetalsAndColors.put("boron", 0xff002bd);
+        NewMetalsAndColors.put("lithium", 0xff002bd);
+        NewMetalsAndColors.put("titanium", 0xff002bd);
+        NewMetalsAndColors.put("cobalt", 0xff002bd);
+        NewMetalsAndColors.put("chrome", 0xff002bd);
+        NewMetalsAndColors.put("iridium", 0xff002bd);
+        NewMetalsAndColors.put("osmium", 0xff002bd);
+        NewMetalsAndColors.put("uranium", 0xff002bd);
+        NewMetalsAndColors.put("thorium", 0xff002bd);
+        NewMetalsAndColors.put("electrum", 0xff002bd);
+        NewMetalsAndColors.put("brass", 0xff002bd);
+        NewMetalsAndColors.put("bronze", 0xff002bd);
+        NewMetalsAndColors.put("steel", 0xff002bd);
+        NewMetalsAndColors.put("constantan", 0xff002bd);
+        NewMetalsAndColors.put("invar", 0xff002bd);
+        NewMetalsAndColors.put("terne", 0xff002bd);
+        NewMetalsAndColors.put("corinthian_bronze", 0xff002bd);
+        NewMetalsAndColors.put("sterling_silver", 0xff002bd);
+        NewMetalsAndColors.put("titanium_gold", 0xff002bd);
+        NewMetalsAndColors.put("sterling_platinum", 0xff002bd);
+        NewMetalsAndColors.put("mag_thor", 0xff002bd);
+        NewMetalsAndColors.put("beskar", 0xff002bd);
     }
     private static void initExistingMetalsAndColors() {
-        ExistingMetalsAndColors.put("iron", "0xff002bd");
-        ExistingMetalsAndColors.put("gold", "0xff002bd");
-        ExistingMetalsAndColors.put("copper", "0xff002bd");
+        ExistingMetalsAndColors.put("iron", 0xff002bd);
+        ExistingMetalsAndColors.put("gold", 0xff002bd);
+        ExistingMetalsAndColors.put("copper", 0xff002bd);
     }
     //maps that are used for coloring
-    public static HashMap<RegistryObject<Item>, String> ItemColorMap = new HashMap<>();
-    public static HashMap<RegistryObject<Block>, String> BlockColorMap = new HashMap<>();
+    public static HashMap<RegistryObject<Item>, Integer> ItemColorMap = new HashMap<>();
+    public static HashMap<RegistryObject<Block>, Integer> BlockColorMap = new HashMap<>();
     //default item and block properties
     private static final Item.Properties iProp = new Item.Properties().tab(ItemGroups.ALLOYS_APLENTY_TAB);
     private static final Block.Properties bProp = BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK);
@@ -110,12 +110,20 @@ public class ModItemsAndBlocks {
         log(name);
         String metalName = name.split("1")[0];
         RegistryObject<Block> toReturn = BLOCKS.register(name, block);
-        try {
-            String d = ExistingMetalsAndColors.get(metalName);
-            BlockColorMap.put(toReturn, d);
-        } catch (NullPointerException e) {
-            String d = NewMetalsAndColors.get(metalName);
-            BlockColorMap.put(toReturn, d);
+        //try {
+        //    Integer d = ExistingMetalsAndColors.get(metalName);
+        //    BlockColorMap.put(toReturn, d);
+        //} catch (NullPointerException e) {
+        //    String d = NewMetalsAndColors.get(metalName);
+        //    BlockColorMap.put(toReturn, d);
+        //}
+        String[] ExistingMetalsList = ExistingMetalsAndColors.keySet().toArray(new String[ExistingMetalsAndColors.size()]);
+        String[] NewMetalsList = NewMetalsAndColors.keySet().toArray(new String[ExistingMetalsAndColors.size()]);
+
+        if (AlloysAplenty.isThingInList(metalName, ExistingMetalsList)) {
+            BlockColorMap.put(toReturn, ExistingMetalsAndColors.get(metalName));
+        } else if (AlloysAplenty.isThingInList(metalName, NewMetalsList)) {
+            BlockColorMap.put(toReturn, NewMetalsAndColors.get(metalName));
         }
         registerBlockItem(name, toReturn, tab);
         registeredBlocks++;
