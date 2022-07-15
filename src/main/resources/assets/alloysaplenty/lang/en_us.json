@@ -321,5 +321,6 @@
   "item.alloysaplenty.zinc1rod": "Zinc Rod",
   "item.alloysaplenty.zinc1screw": "Zinc Screw",
   "item.alloysaplenty.zinc1sheet": "Zinc Sheet",
-  "item.alloysaplenty.zinc1wire": "Zinc Wire"
+  "item.alloysaplenty.zinc1wire": "Zinc Wire",
+  "itemGroup.alloys_aplenty": "Alloys Aplenty"
 }
